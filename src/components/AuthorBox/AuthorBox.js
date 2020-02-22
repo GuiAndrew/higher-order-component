@@ -1,31 +1,23 @@
 import React, { Component } from "react";
 import AuthorForm from "../AuthorForm/AuthorForm";
 import AuthorTable from "../AuthorTable/AuthorTable";
+import PubSub from 'pubsub-js';
 
 class AuthorBox extends Component {
   constructor() {
     super();
     this.state = {
       list: []
-      // nome: 'Bruce', email: 'bruce.kim@mail.com', senha: '123456'
-      // nome: '', email: '', senha: ''
     };
-
-    this.getData = this.getData.bind(this);
   }
 
   componentDidMount() {
     // console.log(this);
-    this.getData();
-  }
-
-  getData() {
     fetch("https://cdc-react.herokuapp.com/api/autores/")
       .then(res => res.json())
       .then(
         result => {
           this.setState({
-            // list: result.slice(0,13)
             list: result.slice(result.length - 13, result.length)
           });
         },
@@ -35,12 +27,17 @@ class AuthorBox extends Component {
           });
         }
       );
+
+      PubSub.subscribe('update-author-list', function(topic, res) {
+        this.setState({ list: res.slice(res.length - 13, res.length) });
+        // console.log(topic);
+      }.bind(this));
   }
 
   render() {
     return (
       <div className="pure-control-group">
-        <AuthorForm updateListCallBack={this.getData} />
+        <AuthorForm />
         <AuthorTable list={this.state.list} />
       </div>
     );

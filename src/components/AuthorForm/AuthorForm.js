@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import CustomInput from "../CustomInput/CustomInput";
+import PubSub from 'pubsub-js';
 
 class AuthorForm extends Component {
   constructor() {
@@ -39,11 +40,13 @@ class AuthorForm extends Component {
           );
           return;
         }
-
-        res.json().then(res => console.log("Request was a success!", res));
-        // res.json().then(res => console.log('Request was a success!'));
+        res.json().then(res => { 
+          // console.log("Request was a success!", res);
+          console.log("Request was a success!");
+          PubSub.publish('update-author-list', res); 
+        });
       })
-      .then(() => this.props.updateListCallBack())
+      // .then(() => this.props.updateListCallBack())
       // .then((data) => console.log(data))
       .catch(error => console.log(error));
 
