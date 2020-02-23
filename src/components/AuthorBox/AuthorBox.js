@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import AuthorForm from "../AuthorForm/AuthorForm";
-import AuthorTable from "../AuthorTable/AuthorTable";
+import React, { Component } from 'react';
+import AuthorForm from '../AuthorForm/AuthorForm';
+import AuthorTable from '../AuthorTable/AuthorTable';
 import PubSub from 'pubsub-js';
 
 class AuthorBox extends Component {

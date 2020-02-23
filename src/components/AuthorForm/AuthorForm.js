@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import CustomInput from "../CustomInput/CustomInput";
 import PubSub from 'pubsub-js';
+import ErrorProcess from '../ErrorProcess/ErrorProcess';
 
 class AuthorForm extends Component {
   constructor() {
@@ -34,20 +35,31 @@ class AuthorForm extends Component {
     })
       // .then((res) => res.json())
       .then(res => {
+        if(res.status === 400) {
+          PubSub.publish('clean-validation', {});
+          new ErrorProcess().errorPublisher(res.json());
+          return;
+        }
+
+        if(res.status === 500) {          
+          PubSub.publish('server-validation', 'Internal Server Error!');
+          return;
+        }
+
         if (res.status !== 200) {
           console.log(
             "Warning, the data wasn't sent! Status code: " + res.status
           );
           return;
         }
+
         res.json().then(res => { 
           // console.log("Request was a success!", res);
           console.log("Request was a success!");
-          PubSub.publish('update-author-list', res); 
+          PubSub.publish('update-author-list', res);           
+          PubSub.publish('clean-validation', {});
         });
       })
-      // .then(() => this.props.updateListCallBack())
-      // .then((data) => console.log(data))
       .catch(error => console.log(error));
 
     this.setState({ nome: "", email: "", senha: "" });
@@ -76,7 +88,7 @@ class AuthorForm extends Component {
           <CustomInput
             id="name"
             type="text"
-            name="name"
+            name="nome"
             value={this.state.nome}
             onChange={this.setName}
             label="Name:"
@@ -94,7 +106,7 @@ class AuthorForm extends Component {
           <CustomInput
             id="password"
             type="password"
-            name="password"
+            name="senha"
             value={this.state.senha}
             onChange={this.setPassword}
             label="Password:"
